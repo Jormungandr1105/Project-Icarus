@@ -48,28 +48,28 @@ int Vertex::getNumber() const {return v_num;}
 
 
 
-double Vertex::calcDist(Vertex b) {
+double Vertex::calcDist(Vertex* b) {
   double distance;
-  double dx = pow(x_coord - b.getX(),2);
-  double dy = pow(y_coord - b.getY(),2);
-  double dz = pow(z_coord - b.getZ(),2);
+  double dx = pow(x_coord - b->getX(),2);
+  double dy = pow(y_coord - b->getY(),2);
+  double dz = pow(z_coord - b->getZ(),2);
   distance = sqrt(dx+dy+dz);
   return distance;
 }
 
 // Non-Member Functions
 // Sort via X Distance
-bool sortX(const Vertex &a, const Vertex &b) {
-  if (a.getX() > b.getX()) {
+bool sortX(const Vertex* a, const Vertex* b) {
+  if (a->getX() > b->getX()) {
     return true;
-  } else if (a.getX() == b.getX()){
-    float angleA, angleB, aRad, bRad;
-    aRad = sqrt(pow(a.getY(),2)+pow(a.getZ(),2));
-    bRad = sqrt(pow(b.getY(),2)+pow(b.getZ(),2));
+  } else if (a->getX() == b->getX()){
+    float aRad, bRad;
+    aRad = sqrt(pow(a->getY(),2)+pow(a->getZ(),2));
+    bRad = sqrt(pow(b->getY(),2)+pow(b->getZ(),2));
 
-    if (a.getTheta() > b.getTheta()) {
+    if (a->getTheta() > b->getTheta()) {
       return true;
-    } else if (a.getTheta() == b.getTheta() && aRad < bRad) {
+    } else if (a->getTheta() == b->getTheta() && aRad < bRad) {
       return true;
     }
   }

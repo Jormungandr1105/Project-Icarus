@@ -26,11 +26,11 @@ public:
   int getNumber() const;
 
   // Distance Finder
-  double calcDist(Vertex b);
+  double calcDist(Vertex* b);
 
 };
 
-bool sortX(const Vertex &a, const Vertex &b);
+bool sortX(const Vertex* a, const Vertex* b);
 bool sortY(const Vertex &a, const Vertex &b);
 
 #endif

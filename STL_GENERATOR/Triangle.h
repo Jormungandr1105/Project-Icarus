@@ -6,22 +6,22 @@
 
 class Triangle {
 private:
-  Vertex vert1;
-  Vertex vert2;
-  Vertex vert3;
+  Vertex* vert1;
+  Vertex* vert2;
+  Vertex* vert3;
   double nx, ny, nz;
   int t_num;
 
 public:
   // CONSTRUCTORS
-  Triangle(Vertex v1, Vertex v2, Vertex v3, int number);
+  Triangle(Vertex* v1, Vertex* v2, Vertex* v3, int number);
 
   Triangle() {
   }
 
 
   // ACCESSORS
-  Vertex get(int number);
+  Vertex* get(int number);
   int getNumber() {return t_num;}
   double getNx() {return nx;}
   double getNy() {return ny;}
