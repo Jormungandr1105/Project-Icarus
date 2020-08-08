@@ -18,3 +18,7 @@ void Model::sortByX() {
   std::sort(vertices.begin(), vertices.end(), sortX);
   //std::cout << "Sorted" << std::endl;
 }
+
+void Model::sortByY() {
+  std::sort(vertices.begin(), vertices.end(), sortY);
+}

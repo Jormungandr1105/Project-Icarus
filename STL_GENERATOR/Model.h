@@ -43,6 +43,7 @@ public:
   uint getMeshSize() {return mesh.size();}
   // SORTER
   void sortByX();
+  void sortByY();
 };
 
 #endif

@@ -7,7 +7,7 @@ private:
   double y_coord;
   double z_coord;
   int v_num;
-  double angle;
+  double angleTheta, angleOmega;
 
 
 public:
@@ -23,6 +23,7 @@ public:
   double getY() const;
   double getZ() const;
   double getTheta() const;
+  double getOmega() const;
   int getNumber() const;
 
   // Distance Finder
@@ -31,6 +32,6 @@ public:
 };
 
 bool sortX(const Vertex* a, const Vertex* b);
-bool sortY(const Vertex &a, const Vertex &b);
+bool sortY(const Vertex* a, const Vertex* b);
 
 #endif

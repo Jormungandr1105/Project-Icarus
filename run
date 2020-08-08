@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./STL_GENERATOR/stlapp testCmake 13 .1

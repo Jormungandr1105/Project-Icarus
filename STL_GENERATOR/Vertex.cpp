@@ -13,28 +13,56 @@ Vertex::Vertex(double x, double y, double z, int number) {
   cos = acos(y_coord/rad);
   sin = asin(z_coord/rad);
   if (rad == 0) {
-    angle = 2*M_PI;
+    angleTheta = 2*M_PI;
   } else if (cos > M_PI/2) {
     if (sin > 0) {
-      angle = cos;
+      angleTheta = cos;
     } else if (sin == 0) {
-      angle = M_PI;
+      angleTheta = M_PI;
     } else {
-      angle = 2*M_PI - cos;
+      angleTheta = 2*M_PI - cos;
     }
   } else if (cos == M_PI/2) {
     if (sin > 0) {
-      angle = M_PI/2;
+      angleTheta = M_PI/2;
     } else {
-      angle = (3*M_PI)/2;
+      angleTheta = (3*M_PI)/2;
     }
   } else {
     if (sin > 0) {
-      angle = cos;
+      angleTheta = cos;
     } else if (sin == 0) {
-      angle = 2*M_PI;
+      angleTheta = 2*M_PI;
     } else {
-      angle = 2*M_PI - cos;
+      angleTheta = 2*M_PI - cos;
+    }
+  }
+  rad = sqrt(pow(x_coord,2) + pow(z_coord, 2));
+  cos = acos(x_coord/rad);
+  sin = asin(z_coord/rad);
+  if (rad == 0) {
+    angleOmega = 2*M_PI;
+  } else if (cos > M_PI/2) {
+    if (sin > 0) {
+      angleOmega = cos;
+    } else if (sin == 0) {
+      angleOmega = M_PI;
+    } else {
+      angleOmega = 2*M_PI - cos;
+    }
+  } else if (cos == M_PI/2) {
+    if (sin > 0) {
+      angleOmega = M_PI/2;
+    } else {
+      angleOmega = (3*M_PI)/2;
+    }
+  } else {
+    if (sin > 0) {
+      angleOmega = cos;
+    } else if (sin == 0) {
+      angleOmega = 2*M_PI;
+    } else {
+      angleOmega = 2*M_PI - cos;
     }
   }
 }
@@ -43,7 +71,8 @@ Vertex::Vertex(double x, double y, double z, int number) {
 double Vertex::getX() const {return x_coord;}
 double Vertex::getY() const {return y_coord;}
 double Vertex::getZ() const {return z_coord;}
-double Vertex::getTheta() const {return angle;}
+double Vertex::getTheta() const {return angleTheta;}
+double Vertex::getOmega() const {return angleOmega;}
 int Vertex::getNumber() const {return v_num;}
 
 
@@ -73,33 +102,23 @@ bool sortX(const Vertex* a, const Vertex* b) {
       return true;
     }
   }
-    /*
-  } else if (a.getX() == b.getX()) {
-    if (a.getY() > b.getY()) {
-      return true;
-    } else if (a.getY() == b.getY()) {
-      if (a.getZ() > b.getZ()) {
-        return true;
-      }
-    }
-  }
-*/
   return false;
 }
 
 //Sort via Y Distance
-bool sortY(const Vertex &a, const Vertex &b) {
-  if (a.getY() > b.getY()) {
+bool sortY(const Vertex* a, const Vertex* b) {
+  if (a->getY() > b->getY()) {
     return true;
-  } else if (a.getY() == b.getY()) {
-    if (a.getX() > b.getX()) {
+  } else if (a->getY() == b->getY()){
+    float aRad, bRad;
+    aRad = sqrt(pow(a->getX(),2)+pow(a->getZ(),2));
+    bRad = sqrt(pow(b->getX(),2)+pow(b->getZ(),2));
+
+    if (a->getOmega() > b->getOmega()) {
       return true;
-    } else if (a.getX() == b.getX()) {
-      if (a.getZ() > b.getZ()) {
-        return true;
-      }
+    } else if (a->getOmega() == b->getOmega() && aRad < bRad) {
+      return true;
     }
   }
-
   return false;
 }
