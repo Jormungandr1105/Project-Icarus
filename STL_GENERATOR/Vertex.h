@@ -11,8 +11,6 @@ private:
 
 
 public:
-  Vertex* next_;
-  Vertex* prev_;
 
   // CONSTRUCTOR
   Vertex() {}

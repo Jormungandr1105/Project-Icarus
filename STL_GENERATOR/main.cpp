@@ -7,53 +7,69 @@
 #include "Plane.h"
 #include "Vertex.h"
 #include "Model.h"
+#include "Shapes.h"
 
 typedef unsigned int uint;
 
-void cubeGen(Model &cube, double sidelength);
-void sphereGen(Model &sphere, double radius, double delta);
-void slicer(Model &model, bool sliceY);
-void meshGen(Model &model);
-void stlWriter(std::vector<Model> &models, std::string fileName);
+//void cubeGen(Model &cube, double sidelength);
+//void sphereGen(Model &sphere, double radius, double delta);
+void ReadIn(Model* &first_model, std::string infile);
+void slicer(Model* &model, bool sliceY);
+void meshGen(Model* &model);
+void stlWriter(std::vector<Model*> models, std::string fileName);
 void printUpdate(int num, float den);
+
 
 int main(int argc, char* argv[]) {
   // BASIC SHAPES GENERATOR
+  /*
   Vertex originS = Vertex(0,0,0,0);
-  Vertex originY = Vertex(25,25,0,1);
+  Vertex originY = Vertex(10,10,0,1);
+  Vertex originR = Vertex(-5,-5,0,2);
   double radius, delta;
   std::string fileName;
+  std::string input = argv[4];
   radius = atof(argv[2]);
   delta = atof(argv[3]);
   fileName = argv[1];
   Model Sphere(originS, false);
   Model Cube(originY, false);
+  Model Rectangle(originR, false);
   std::cout << "Generating Vertices...      " << std::endl;
   sphereGen(Sphere, radius, delta);
   cubeGen(Cube, 2*radius);
-  //std::sort(cube.begin(), cube.end(), sortX);
-  //std::sort(sphere.begin(), sphere.end(), sortX);
-  /*
-  for (int i=0; i<cube.size(); i++) {
-    std::cout << cube[i].getX() << "," << cube[i].getY() << "," << cube[i].getZ() << std::endl;
-  }
-  */
-  std::vector<Plane> planeX, planeY;
+  rectGen(Rectangle, 20, 10, 5);
   std::cout << "Slicing...                " << std::endl;
   slicer(Sphere, false);
   slicer(Cube, true);
+  slicer(Rectangle, true);
   std::cout << "Generating Mesh...        " << std::endl;
   meshGen(Sphere);
   meshGen(Cube);
+  meshGen(Rectangle);
   std::cout << "Writing to File...        " << std::endl;
   std::vector<Model> Models;
   Models.push_back(Sphere);
   Models.push_back(Cube);
+  Models.push_back(Rectangle);
   stlWriter(Models, fileName);
   std::cout << "Completed                 " << std::endl;
+  */
+  Model* first_model;
+  std::vector<Model*> models;
+  std::string fileName = argv[1];
+  std::string input = argv[2];
+  ReadIn(first_model, input);
+  std::cout << first_model->getMeshSize() << std::endl;
+  //models.push_back(first_model);
+  //while (first_model->next != NULL) {
+    //models.push_back(first_model->next);
+    //first_model = first_model->next;
+  //}
+  //stlWriter(models, fileName);
 }
 
-
+/*
 void cubeGen(Model &cube, double sidelength) {
   double i=1;
   double j=1;
@@ -71,8 +87,8 @@ void cubeGen(Model &cube, double sidelength) {
     cube.addVertex(current);
   }
 }
-
-
+*/
+/*
 void sphereGen(Model &sphere, double radius, double delta) {
   double num_slices = ((2*radius)/delta) + 1;
   double a, b, c, x, y, z;
@@ -100,47 +116,80 @@ void sphereGen(Model &sphere, double radius, double delta) {
     }
   }
 }
+*/
 
+void ReadIn(Model* &first_model, std::string infile) {
+  double x, y, z, delta, radius, delx, dely, delz;
+  bool hole, end;
+  Model* model = NULL;
+  std::ifstream INFILE;
+  INFILE.open(infile);
+  // Load in all the shapes from the file
+  end = false;
+  std::string name, name1;
+  while (!end) {
+    INFILE >> name1;
+    name = name1;
+    std::cout << name << std::endl;
+    if (name == "END") {
+      end = true;
+    }
+    if (name == "SPHERE") {
+      INFILE >> x >> y >> z >> radius >> delta >> hole;
+      Vertex origin = Vertex(x, y, z, 0);
+      model = new Model(origin, hole);
+      sphereGen(model, radius, delta);
+      std::cout << model->getNumVertices() << std::endl;
+      slicer(model, false);
+      std::cout << model->getNumXPlanes() << std::endl;
+      meshGen(model);
+      std::cout << model->getMeshSize() << std::endl;
+    }
+    else if (name == "END") {
+      end = true;
+    }
+  }
+}
 
-void slicer(Model &model, bool sliceY) {
+void slicer(Model* &model, bool sliceY) {
   int first = 0;
   int last = 0;
   uint p = 0;
   // Slice X
   Plane cur_plane;
-  model.sortByX();
-  uint size = model.getNumVertices();
-  double x = model.getVertices(0)->getX();
+  model->sortByX();
+  uint size = model->getNumVertices();
+  double x = model->getVertices(0)->getX();
 
   for(uint i=1; i<=size; i++) {
     if (i == size) {
       std::vector<Vertex*> current;
       for (int j=first; j<=last; j++) {
-        current.push_back(model.getVertices(j));
+        current.push_back(model->getVertices(j));
       }
       cur_plane = Plane(current, p);
-      model.addXPlane(cur_plane);
-    } else if (model.getVertices(i)->getX() == x) {
+      model->addXPlane(cur_plane);
+    } else if (model->getVertices(i)->getX() == x) {
       last = i;
     } else {
       std::vector<Vertex*> current;
       for (int j=first; j<=last; j++) {
-        current.push_back(model.getVertices(j));
+        current.push_back(model->getVertices(j));
       }
       cur_plane = Plane(current, p);
       p++;
-      model.addXPlane(cur_plane);
+      model->addXPlane(cur_plane);
       first = i;
       last = i;
-      x = model.getVertices(i)->getX();
+      x = model->getVertices(i)->getX();
     }
     printUpdate(i, size);
   }
 
   if (sliceY) {
     // Now Slice Y
-    model.sortByY();
-    double y = model.getVertices(0)->getY();
+    model->sortByY();
+    double y = model->getVertices(0)->getY();
     first = 0;
     last = 0;
 
@@ -148,39 +197,39 @@ void slicer(Model &model, bool sliceY) {
       if (i == size) {
         std::vector<Vertex*> current;
         for (int j=first; j<=last; j++) {
-          current.push_back(model.getVertices(j));
+          current.push_back(model->getVertices(j));
         }
         cur_plane = Plane(current, p);
-        model.addYPlane(cur_plane);
-      } else if (model.getVertices(i)->getY() == y) {
+        model->addYPlane(cur_plane);
+      } else if (model->getVertices(i)->getY() == y) {
         last = i;
       } else {
         std::vector<Vertex*> current;
         for (int j=first; j<=last; j++) {
-          current.push_back(model.getVertices(j));
+          current.push_back(model->getVertices(j));
         }
         cur_plane = Plane(current, p);
         p++;
-        model.addYPlane(cur_plane);
+        model->addYPlane(cur_plane);
         first = i;
         last = i;
-        y = model.getVertices(i)->getY();
+        y = model->getVertices(i)->getY();
       }
     }
   }
 }
 
 
-void meshGen(Model &model) {
+void meshGen(Model* &model) {
   Triangle newT;
   Vertex *nextHigh, *nextLow;
   bool endLow, endHigh, nextIsLow;
   int num1, num2;
   int tot = 0;
-  uint size = model.getNumXPlanes();
+  uint size = model->getNumXPlanes();
   for (uint i=1; i<size; i++) {
-    Plane p1 = model.getPlaneX(i-1);
-    Plane p2 = model.getPlaneX(i);
+    Plane p1 = model->getPlaneX(i-1);
+    Plane p2 = model->getPlaneX(i);
     endLow = false;
     endHigh = false;
     num1 = 1;
@@ -211,7 +260,7 @@ void meshGen(Model &model) {
         newT = Triangle(nextHigh, p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
         num2++;
       }
-      model.addTriangle(newT);
+      model->addTriangle(newT);
       tot++;
       if (p1.getNumVert() > num1) {nextLow = p1.getVertex(num1);}
       else {endLow = true;}
@@ -223,21 +272,21 @@ void meshGen(Model &model) {
       newT = Triangle(p1.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
       tot++;
       num1 = 1;
-      model.addTriangle(newT);
+      model->addTriangle(newT);
     }
     if (p2.getNumVert() > 1) {
       newT = Triangle(p2.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
       tot++;
       num2 = 1;
-      model.addTriangle(newT);
+      model->addTriangle(newT);
     }
     printUpdate(i, size);
     // Y Mesh Gen
-    if (model.getNumYPlanes() != 0) {
-      size = model.getNumYPlanes();
+    if (model->getNumYPlanes() != 0) {
+      size = model->getNumYPlanes();
       for (uint i=1; i<size; i++) {
-        Plane p1 = model.getPlaneY(i-1);
-        Plane p2 = model.getPlaneY(i);
+        Plane p1 = model->getPlaneY(i-1);
+        Plane p2 = model->getPlaneY(i);
         endLow = false;
         endHigh = false;
         num1 = 1;
@@ -268,7 +317,7 @@ void meshGen(Model &model) {
             newT = Triangle(nextHigh, p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
             num2++;
           }
-          model.addTriangle(newT);
+          model->addTriangle(newT);
           tot++;
           if (p1.getNumVert() > num1) {nextLow = p1.getVertex(num1);}
           else {endLow = true;}
@@ -280,13 +329,13 @@ void meshGen(Model &model) {
           newT = Triangle(p1.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
           tot++;
           num1 = 1;
-          model.addTriangle(newT);
+          model->addTriangle(newT);
         }
         if (p2.getNumVert() > 1) {
           newT = Triangle(p2.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
           tot++;
           num2 = 1;
-          model.addTriangle(newT);
+          model->addTriangle(newT);
         }
       }
     }
@@ -294,30 +343,29 @@ void meshGen(Model &model) {
 }
 
 
-void stlWriter(std::vector<Model> &models, std::string fileName){
-  // THIS IS A MESS..... FIXXXXXX
+void stlWriter(std::vector<Model*> models, std::string fileName){
   std::ofstream STLFILE(fileName + ".stl");
   Triangle triangle;
   Vertex* vertex;
   uint size;
   uint total_size = 0;
   for (uint i=0; i<models.size(); i++) {
-    total_size += models[0].getMeshSize();
+    total_size += models[0]->getMeshSize();
   }
 
   //STLFILE << "solid Sphere_Model\n";
   for (uint k=0; k<models.size(); k++) {
-    size = models[k].getMeshSize();
+    size = models[k]->getMeshSize();
     STLFILE << "solid Sphere_Model\n";
 
     // Add all Triangles
     for(uint i=0; i<size; i++) {
-      triangle = models[k].getMesh(i);
+      triangle = models[k]->getMesh(i);
       STLFILE << "\tfacet normal " << triangle.getNx() << " " << triangle.getNy() <<
                  " " << triangle.getNz() << "\n";
       STLFILE << "\t\touter loop \n";
       for (int j=0; j<3; j++) {
-        vertex = models[k].getMesh(i).get(j);
+        vertex = models[k]->getMesh(i).get(j);
         STLFILE << "\t\t\tvertex " << vertex->getX() << " " <<
                    vertex->getY() << " " << vertex->getZ() << "\n";
       }
@@ -327,18 +375,5 @@ void stlWriter(std::vector<Model> &models, std::string fileName){
     }
     STLFILE << "endsolid Sphere_Model";
   }
-  // End File
-  //STLFILE << "endsolid Sphere_Model";
   STLFILE.close();
-}
-
-void printUpdate(int num, float den) {
-  uint bar_size = 20;
-  float percent = (num/den)*bar_size;
-  std::cout << "[";
-  for (uint i=0; i<bar_size; i++) {
-    if (i<percent) {std::cout << "*";}
-    else {std::cout << "_";}
-  }
-  std::cout << "]\r";
 }

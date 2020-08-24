@@ -19,9 +19,10 @@ public:
   Plane() {}
 
   // DESTRUCTOR
+  //~Plane() {clear();}
   void clear() {
     for (unsigned int i=0; i<vertices.size(); i++) {
-        delete vertices[i];
+      delete vertices[i];
     }
   }
 

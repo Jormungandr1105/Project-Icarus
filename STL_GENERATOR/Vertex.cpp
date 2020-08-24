@@ -6,8 +6,6 @@ Vertex::Vertex(double x, double y, double z, int number) {
   y_coord = y;
   z_coord = z;
   v_num = number;
-  next_ = NULL;
-  prev_ = NULL;
   double rad = sqrt(pow(y_coord,2) + pow(z_coord, 2));
   double cos, sin;
   cos = acos(y_coord/rad);
