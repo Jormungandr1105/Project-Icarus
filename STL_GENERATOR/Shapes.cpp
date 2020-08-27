@@ -1,33 +1,34 @@
 #include "Shapes.h"
 
-void cubeGen(Model &cube, double sidelength) {
+void cubeGen(Model* &cube, double sidelength) {
   double i=1;
   double j=1;
   double k=1;
   double delta = sidelength/2.0;
-  double a = cube.getOrigin().getX();
-  double b = cube.getOrigin().getY();
-  double c = cube.getOrigin().getZ();
+  double a = cube->getOrigin().getX();
+  double b = cube->getOrigin().getY();
+  double c = cube->getOrigin().getZ();
   Vertex* current;
   for (int m=0; m<8; m++) {
     current = new Vertex(i*delta + a, j*delta + b, k*delta + c, m);
     i = -1*i;
     if (i==1) {j = -1*j;}
     if (m>=3) {k=-1;}
-    cube.addVertex(current);
+    cube->addVertex(current);
   }
-  cube.x_min = a-delta;
-  cube.x_max = a+delta;
-  cube.y_min = b-delta;
-  cube.y_max = b+delta;
-  cube.z_min = c-delta;
-  cube.z_max = c+delta;
+  cube->x_min = a-delta;
+  cube->x_max = a+delta;
+  cube->y_min = b-delta;
+  cube->y_max = b+delta;
+  cube->z_min = c-delta;
+  cube->z_max = c+delta;
 }
 
 
 void sphereGen(Model* &sphere, double radius, double delta) {
-  double num_slices = ((2*radius)/delta) + 1;
-  double a, b, c, x, y, z;
+  uint num_slices = ((2*radius)/delta) + 1;
+  double a, b, c, x, y, z, epsilon;
+  epsilon = radius*delta*.001;
   a = sphere->getOrigin().getX();
   b = sphere->getOrigin().getY();
   c = sphere->getOrigin().getZ();
@@ -35,15 +36,15 @@ void sphereGen(Model* &sphere, double radius, double delta) {
   int num = 0;
   for (uint i=0; i<num_slices; i++) {
     for (uint j=0; j<num_slices; j++) {
-      x = delta*i - radius;
-      y = delta*j - radius;
-      z = sqrt(pow(radius,2) - pow(x-a,2) - pow(y-b,2)) + c;
-      if (z <= radius) {
-        current = new Vertex(x, y, z, num);
+      x = delta*i - radius + a;
+      y = delta*j - radius + b;
+      z = sqrt(pow(radius,2) - pow(x-a,2) - pow(y-b,2));
+      if (z < radius+epsilon) {
+        current = new Vertex(x, y, c+z, num);
         num++;
         sphere->addVertex(current);
-        if (z != 0) {
-          current = new Vertex(x, y, -1*z, num);
+        if (abs(z) > epsilon) {
+          current = new Vertex(x, y, c-z, num);
           sphere->addVertex(current);
           num++;
         }

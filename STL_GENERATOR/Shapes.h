@@ -6,9 +6,8 @@
 #include "Triangle.h"
 #include "Vertex.h"
 #include "Model.h"
-//#include "main.cpp"
 
-void cubeGen(Model &cube, double sidelength);
+void cubeGen(Model* &cube, double sidelength);
 void rectGen(Model &rect, double xlen, double ylen, double zlen);
 void sphereGen(Model* &sphere, double radius, double delta);
 void ellipseGen(Model &ellipse, double x, double y, double z, double delta);
