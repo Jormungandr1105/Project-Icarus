@@ -1,7 +1,7 @@
 # Project-Icarus
 Attempt at Machine Learning for Airfoil Design and Export
 
-NOTE: No part of this project currently functions. I just cleared up a few bugs, and hopefully with a bit more time, I'll actually have some bit of it usable.
+UPDATE: NOW WORKING! (KIND OF)
 
 Current Progress:
 - Creating 3D Objects from Point Clouds (Portion Currently Under Work)
