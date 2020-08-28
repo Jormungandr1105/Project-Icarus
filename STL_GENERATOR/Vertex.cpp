@@ -1,15 +1,15 @@
 #include <cmath>
 #include "Vertex.h"
 
-Vertex::Vertex(double x, double y, double z, int number) {
+Vertex::Vertex(double x, double y, double z, int number, Vertex origin) {
   x_coord = x;
   y_coord = y;
   z_coord = z;
   v_num = number;
-  double rad = sqrt(pow(y_coord,2) + pow(z_coord, 2));
+  double rad = sqrt(pow(y_coord-origin.getY(),2) + pow(z_coord-origin.getZ(), 2));
   double cos, sin;
-  cos = acos(y_coord/rad);
-  sin = asin(z_coord/rad);
+  cos = acos((y_coord-origin.getY())/rad);
+  sin = asin((z_coord-origin.getZ())/rad);
   if (rad == 0) {
     angleTheta = 2*M_PI;
   } else if (cos > M_PI/2) {
@@ -35,9 +35,9 @@ Vertex::Vertex(double x, double y, double z, int number) {
       angleTheta = 2*M_PI - cos;
     }
   }
-  rad = sqrt(pow(x_coord,2) + pow(z_coord, 2));
-  cos = acos(x_coord/rad);
-  sin = asin(z_coord/rad);
+  rad = sqrt(pow(x_coord-origin.getX(),2) + pow(z_coord-origin.getZ(), 2));
+  cos = acos((x_coord-origin.getX())/rad);
+  sin = asin((z_coord-origin.getZ())/rad);
   if (rad == 0) {
     angleOmega = 2*M_PI;
   } else if (cos > M_PI/2) {

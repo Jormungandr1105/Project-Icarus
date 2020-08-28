@@ -14,7 +14,8 @@ public:
 
   // CONSTRUCTOR
   Vertex() {}
-  Vertex(double x, double y, double z, int number);
+  Vertex(double x, double y, double z) {x_coord=x; y_coord=y; z_coord=z;}
+  Vertex(double x, double y, double z, int number, Vertex origin);
 
   // ACCESSORS
   double getX() const;

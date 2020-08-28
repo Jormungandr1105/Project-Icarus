@@ -49,11 +49,11 @@ void Model::clear() {
 }
 
 void Model::sortByX() {
-  //std::cout << "Starting Sort" << std::endl;
+  std::cout << "Sorting X" << std::endl;
   std::sort(vertices.begin(), vertices.end(), sortX);
-  //std::cout << "Sorted" << std::endl;
 }
 
 void Model::sortByY() {
+  std::cout << "Sorting Y" << std::endl;
   std::sort(vertices.begin(), vertices.end(), sortY);
 }
