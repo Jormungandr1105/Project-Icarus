@@ -1,8 +1,6 @@
 # Project-Icarus
 Attempt at Machine Learning for Airfoil Design and Export
 
-UPDATE: NOW WORKING!
-
 Current Progress:
 - Creating 3D Objects from Point Clouds 
   - Current Shapes: Sphere, Cube, Rectangle
