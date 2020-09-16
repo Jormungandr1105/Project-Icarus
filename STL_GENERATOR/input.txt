@@ -1,3 +1,0 @@
-JOB 0001
-SPHERE 0 0 0 5 1 false END
-END

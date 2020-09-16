@@ -1,15 +1,16 @@
 #include <cmath>
+#include <ostream>
 #include "Vertex.h"
 
-Vertex::Vertex(double x, double y, double z, int number) {
+Vertex::Vertex(double x, double y, double z, int number, Vertex origin) {
   x_coord = x;
   y_coord = y;
   z_coord = z;
   v_num = number;
-  double rad = sqrt(pow(y_coord,2) + pow(z_coord, 2));
+  double rad = sqrt(pow(y_coord-origin.getY(),2) + pow(z_coord-origin.getZ(), 2));
   double cos, sin;
-  cos = acos(y_coord/rad);
-  sin = asin(z_coord/rad);
+  cos = acos((y_coord-origin.getY())/rad);
+  sin = asin((z_coord-origin.getZ())/rad);
   if (rad == 0) {
     angleTheta = 2*M_PI;
   } else if (cos > M_PI/2) {
@@ -35,9 +36,9 @@ Vertex::Vertex(double x, double y, double z, int number) {
       angleTheta = 2*M_PI - cos;
     }
   }
-  rad = sqrt(pow(x_coord,2) + pow(z_coord, 2));
-  cos = acos(x_coord/rad);
-  sin = asin(z_coord/rad);
+  rad = sqrt(pow(x_coord-origin.getX(),2) + pow(z_coord-origin.getZ(), 2));
+  cos = acos((x_coord-origin.getX())/rad);
+  sin = asin((z_coord-origin.getZ())/rad);
   if (rad == 0) {
     angleOmega = 2*M_PI;
   } else if (cos > M_PI/2) {
@@ -84,6 +85,12 @@ double Vertex::calcDist(Vertex* b) {
   return distance;
 }
 
+std::ostream& operator<<(std::ostream& os, const Vertex* Vt){
+  os << Vt->x_coord << "," << Vt->y_coord << "," << Vt->z_coord <<
+        ":" << Vt->angleTheta << ":" << Vt->angleOmega;
+  return os;
+}
+
 // Non-Member Functions
 // Sort via X Distance
 bool sortX(const Vertex* a, const Vertex* b) {
@@ -117,6 +124,20 @@ bool sortY(const Vertex* a, const Vertex* b) {
     } else if (a->getOmega() == b->getOmega() && aRad < bRad) {
       return true;
     }
+  }
+  return false;
+}
+
+bool FindXPairs(const Vertex* a, const Vertex* b) {
+  if (a->getX() > b->getX()){
+    return true;
+  }
+  return false;
+}
+
+bool FindYPairs(const Vertex* a, const Vertex* b) {
+  if (a->getY() > b->getY()){
+    return true;
   }
   return false;
 }

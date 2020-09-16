@@ -6,12 +6,10 @@
 #include "Triangle.h"
 #include "Vertex.h"
 #include "Model.h"
-//#include "main.cpp"
 
-void cubeGen(Model &cube, double sidelength);
-void rectGen(Model &rect, double xlen, double ylen, double zlen);
+void cubeGen(Model* &cube, double sidelength, double delta);
+void rectGen(Model* &rect, double xlen, double ylen, double zlen, double delta);
 void sphereGen(Model* &sphere, double radius, double delta);
-void ellipseGen(Model &ellipse, double x, double y, double z, double delta);
 
 
 void printUpdate(int num, float den);

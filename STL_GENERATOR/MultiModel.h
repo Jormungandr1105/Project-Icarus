@@ -1,46 +1,44 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <algorithm>
 #include <cmath>
 #include "Plane.h"
 #include "Triangle.h"
 #include "Vertex.h"
+#include "Model.h"
+#include "Shapes.h"
 
-#ifndef __Model_h__
-#define __Model_h__
+
+#ifndef __MultiModel_h__
+#define __MultiModel_h__
 
 typedef unsigned int uint;
 
-class Model {
+class MultiModel {
 private:
-  bool isHole;
-  Vertex origin;
   std::vector<Vertex*> vertices;
   std::vector<Plane> px;
   std::vector<Plane> py;
   std::vector<Triangle> mesh;
-  bool original;
 
 public:
-  double x_min, x_max, y_min, y_max, z_min, z_max;
-  Model *next;
+  Model* first,* last;
 
   // CONSTRUCTORS
-  Model(Vertex Origin, bool Hole);
-  Model(const Model& that);
-  Model& operator=(const Model& that);
+  MultiModel(Model* model);
+  MultiModel(const MultiModel& that);
+  MultiModel& operator=(const MultiModel& that);
   // DESTRUCTORS
   void clear();
-  ~Model() {clear();}
+  ~MultiModel() {clear();}
   // ASSIGNORS
+  void addModel(Model* model);
   void addVertex(Vertex* Vertex) {vertices.push_back(Vertex);}
   void addXPlane(Plane Px) {px.push_back(Px);}
   void addYPlane(Plane Py) {py.push_back(Py);}
   void addTriangle(Triangle Tri) {mesh.push_back(Tri);}
   // ACCESSORS
-  bool isAHole() const {return isHole;}
-  bool isWithin(Vertex* Vertex, double epsilon);
-  Vertex getOrigin() const {return origin;}
   Vertex* getVertices(uint num) const {return vertices[num];}
   uint getNumVertices() const {return vertices.size();}
   Plane getPlaneX(uint num) const {return px[num];}
@@ -49,12 +47,16 @@ public:
   uint getNumYPlanes() const {return py.size();}
   Triangle getMesh(uint num) const {return mesh[num];}
   uint getMeshSize() const {return mesh.size();}
-  // SORTER
+  // MODIFIERS
+  void removeUnnecessary();
+  void slicer();
+  void meshGen();
+  void stlWriter(std::string fileName);
+  std::vector<Vertex*> removeExtras(std::vector<Vertex*> vec1, bool isX);
+  void simplifyGeometry();
+  // SORTERS
   void sortByX();
   void sortByY();
 };
-
-bool checkForCollision(Model* a, Model* b);
-bool checkForBetween(float a_min, float a_max, float b_min, float b_max);
 
 #endif

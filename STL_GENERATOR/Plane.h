@@ -28,6 +28,8 @@ public:
 
   // ASSIGNORS
   void addVertToPlane(Vertex* vertex) {vertices.push_back(vertex);}
+  // AUGMENTORS
+  void remove(uint i){vertices.erase(vertices.begin()+i);}
 
   // ACCESSORS
   Vertex* getVertex(int x) {return vertices[x];}
