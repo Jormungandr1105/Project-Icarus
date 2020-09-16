@@ -7,8 +7,8 @@
 #include "Vertex.h"
 #include "Model.h"
 
-void cubeGen(Model* &cube, double sidelength);
-void rectGen(Model* &rect, double xlen, double ylen, double zlen);
+void cubeGen(Model* &cube, double sidelength, double delta);
+void rectGen(Model* &rect, double xlen, double ylen, double zlen, double delta);
 void sphereGen(Model* &sphere, double radius, double delta);
 
 

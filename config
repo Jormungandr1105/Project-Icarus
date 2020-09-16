@@ -1,4 +1,7 @@
 #!/bin/bash
 
+mkdir build
+cp run ./build
+cd build
 cmake ..
 cmake --build .

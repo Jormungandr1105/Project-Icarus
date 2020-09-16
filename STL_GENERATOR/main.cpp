@@ -7,6 +7,7 @@
 #include "Plane.h"
 #include "Vertex.h"
 #include "Model.h"
+#include "MultiModel.h"
 #include "Shapes.h"
 
 
@@ -22,48 +23,48 @@ void printUpdate(int num, float den);
 
 int main(int argc, char* argv[]) {
   // BASIC SHAPES GENERATOR
-  /*
-  Vertex originS = Vertex(0,0,0,0);
-  Vertex originY = Vertex(10,10,0,1);
-  Vertex originR = Vertex(-5,-5,0,2);
-  double radius, delta;
-  std::string fileName;
-  std::string input = argv[4];
-  radius = atof(argv[2]);
-  delta = atof(argv[3]);
-  fileName = argv[1];
-  Model Sphere(originS, false);
-  Model Cube(originY, false);
-  Model Rectangle(originR, false);
-  std::cout << "Generating Vertices...      " << std::endl;
-  sphereGen(Sphere, radius, delta);
-  cubeGen(Cube, 2*radius);
-  rectGen(Rectangle, 20, 10, 5);
-  std::cout << "Slicing...                " << std::endl;
-  slicer(Sphere, false);
-  slicer(Cube, true);
-  slicer(Rectangle, true);
-  std::cout << "Generating Mesh...        " << std::endl;
-  meshGen(Sphere);
-  meshGen(Cube);
-  meshGen(Rectangle);
-  std::cout << "Writing to File...        " << std::endl;
-  std::vector<Model> Models;
-  Models.push_back(Sphere);
-  Models.push_back(Cube);
-  Models.push_back(Rectangle);
-  stlWriter(Models, fileName);
-  std::cout << "Completed                 " << std::endl;
-  */
   Model* first_model;
+  bool answer;
+  uint n, m;
+  n=1;
+  m=2;
   std::vector<Model*> models;
   std::string fileName = argv[1];
   std::string input = argv[2];
   first_model = ReadIn(input);
+  Model* main_model = first_model;
+  Model* current_model = main_model->next;
+  while(main_model->next != NULL) {
+    while (current_model != NULL) {
+      answer = checkForCollision(main_model, current_model);
+      if (answer) {std::cout << n << "," << m << std::endl;}
+      current_model = current_model->next;
+      m++;
+    }
+    main_model = main_model->next;
+    current_model = main_model->next;
+    n++;
+    m = n+1;
+  }
+  // MULTIMODEL ATTEMPT
+  MultiModel* mmodel = new MultiModel(first_model);
+  mmodel->removeUnnecessary();
+  mmodel->slicer();
+  mmodel->simplifyGeometry();
+  mmodel->meshGen();
+  mmodel->stlWriter(fileName);
+
   std::cout << "==================        " << std::endl;
   std::cout << "Writing to File...        " << std::endl;
   stlWriter(first_model, fileName);
   std::cout << "Completed                 " << std::endl;
+  main_model = first_model;
+  while(main_model->next != NULL) {
+    current_model = main_model;
+    main_model = main_model->next;
+    delete current_model;
+  }
+  delete main_model;
 }
 
 
@@ -74,12 +75,20 @@ Model* ReadIn(std::string infile) {
   Model* current = NULL;
   Model* last = NULL;
   Vertex origin;
-  std::ifstream INFILE(infile);
+  std::string job_num;
+  std::ifstream INFILE("../Input_files/" + infile);
+  INFILE >> job_num; INFILE >> job_num;
+  std::cout << "======================" << std::endl;
+  std::cout << "/// PROJECT_ICARUS \\\\\\" << std::endl;
+  std::cout << "======================" << std::endl;
+  std::cout << "=      JOB_" << job_num << "      =" << std::endl;
+  std::cout << "======================" << std::endl;
   // Load in all the shapes from the file
   std::string name, hole_str;
   while (INFILE >> name && name != "END") {
+    // SPHERE CREATION
     if (name == "SPHERE") {
-      std::cout << name << "                 \n========" << std::endl;
+      std::cout << name << "                  \n===========" << std::endl;
       INFILE >> x >> y >> z >> radius >> delta >> hole_str;
       if (hole_str == "false" || hole_str == "FALSE") {hole = false;}
       else {hole = true;}
@@ -87,41 +96,43 @@ Model* ReadIn(std::string infile) {
       current = new Model(origin, hole);
       std::cout << "Generating Vertices...      " << std::endl;
       sphereGen(current, radius, delta);
-      std::cout << "Slicing...                " << std::endl;
+      std::cout << "Slicing...                  " << std::endl;
       slicer(current, false);
-      std::cout << "Generating Mesh...        " << std::endl;
+      std::cout << "Generating Mesh...          " << std::endl;
       meshGen(current);
       if (first == NULL) {first = current;}
       if (last != NULL) {last->next = current;}
       last = current;
+    // CUBE CREATION
     } if (name == "CUBE") {
-      std::cout << name << "                  \n========" << std::endl;
-      INFILE >> x >> y >> z >> delx >> hole_str;
+      std::cout << name << "                  \n===========" << std::endl;
+      INFILE >> x >> y >> z >> delx >> delta >> hole_str;
       if (hole_str == "false" || hole_str == "FALSE") {hole = false;}
       else {hole = true;}
       origin = Vertex(x, y, z);
       current = new Model(origin, hole);
       std::cout << "Generating Vertices...      " << std::endl;
-      cubeGen(current, delx);
-      std::cout << "Slicing...                " << std::endl;
+      cubeGen(current, delx, delta);
+      std::cout << "Slicing...                  " << std::endl;
       slicer(current, true);
-      std::cout << "Generating Mesh...        " << std::endl;
+      std::cout << "Generating Mesh...          " << std::endl;
       meshGen(current);
       if (first == NULL) {first = current;}
       if (last != NULL) {last->next = current;}
       last = current;
+    // RECTANGLE CREATION
     } if (name == "RECT") {
-      std::cout << name << "                  \n========" << std::endl;
-      INFILE >> x >> y >> z >> delx >> dely >> delz >> hole_str;
+      std::cout << name << "                  \n===========" << std::endl;
+      INFILE >> x >> y >> z >> delx >> dely >> delz >> delta >> hole_str;
       if (hole_str == "false" || hole_str == "FALSE") {hole = false;}
       else {hole = true;}
       origin = Vertex(x, y, z);
       current = new Model(origin, hole);
       std::cout << "Generating Vertices...      " << std::endl;
-      rectGen(current, delx, dely, delz);
-      std::cout << "Slicing...                " << std::endl;
+      rectGen(current, delx, dely, delz, delta);
+      std::cout << "Slicing...                  " << std::endl;
       slicer(current, true);
-      std::cout << "Generating Mesh...        " << std::endl;
+      std::cout << "Generating Mesh...          " << std::endl;
       meshGen(current);
       if (first == NULL) {first = current;}
       if (last != NULL) {last->next = current;}
@@ -276,61 +287,62 @@ void meshGen(Model* &model) {
       model->addTriangle(newT);
     }
     printUpdate(i, size);
-    // Y Mesh Gen
-    if (model->getNumYPlanes() != 0) {
-      size = model->getNumYPlanes();
-      for (uint i=1; i<size; i++) {
-        Plane p1 = model->getPlaneY(i-1);
-        Plane p2 = model->getPlaneY(i);
-        endLow = false;
-        endHigh = false;
-        num1 = 1;
-        num2 = 1;
-        if (p1.getNumVert() > 1) {nextLow = p1.getVertex(1);}
-        else {endLow = true;}
-        if (p2.getNumVert() > 1) {nextHigh = p2.getVertex(1);}
-        else {endHigh = true;}
-        // Choose next Vertex for Triangle
-        while (!endLow || !endHigh) {
-          if (!endLow && !endHigh) {
-            if (nextLow->getOmega() >= nextHigh->getOmega()) {
-              nextIsLow=true;
-            } else {
-              nextIsLow=false;
-            }
-          } else if (!endLow) {
+  }
+  // Y Mesh Gen
+  if (model->getNumYPlanes() != 0) {
+    size = model->getNumYPlanes();
+    for (uint i=1; i<size; i++) {
+      Plane p1 = model->getPlaneY(i-1);
+      Plane p2 = model->getPlaneY(i);
+      //std::cout << p2.getVertex(0)->getY() << std::endl;
+      endLow = false;
+      endHigh = false;
+      num1 = 1;
+      num2 = 1;
+      if (p1.getNumVert() > 1) {nextLow = p1.getVertex(1);}
+      else {endLow = true;}
+      if (p2.getNumVert() > 1) {nextHigh = p2.getVertex(1);}
+      else {endHigh = true;}
+      // Choose next Vertex for Triangle
+      while (!endLow || !endHigh) {
+        if (!endLow && !endHigh) {
+          if (nextLow->getOmega() >= nextHigh->getOmega()) {
             nextIsLow=true;
           } else {
             nextIsLow=false;
           }
-          // Create New Triangle
-          if (nextIsLow) {
-            newT = Triangle(nextLow, p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
-            num1++;
-          } else {
-            newT = Triangle(nextHigh, p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
-            num2++;
-          }
-          model->addTriangle(newT);
-          tot++;
-          if (p1.getNumVert() > num1) {nextLow = p1.getVertex(num1);}
-          else {endLow = true;}
-          if (p2.getNumVert() > num2) {nextHigh = p2.getVertex(num2);}
-          else {endHigh = true;}
+        } else if (!endLow) {
+          nextIsLow=true;
+        } else {
+          nextIsLow=false;
         }
-        // Clean Up Last 2 Triangles
-        if (p1.getNumVert() > 1) {
-          newT = Triangle(p1.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
-          tot++;
-          num1 = 1;
-          model->addTriangle(newT);
+        // Create New Triangle
+        if (nextIsLow) {
+          newT = Triangle(nextLow, p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
+          num1++;
+        } else {
+          newT = Triangle(nextHigh, p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
+          num2++;
         }
-        if (p2.getNumVert() > 1) {
-          newT = Triangle(p2.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
-          tot++;
-          num2 = 1;
-          model->addTriangle(newT);
-        }
+        model->addTriangle(newT);
+        tot++;
+        if (p1.getNumVert() > num1) {nextLow = p1.getVertex(num1);}
+        else {endLow = true;}
+        if (p2.getNumVert() > num2) {nextHigh = p2.getVertex(num2);}
+        else {endHigh = true;}
+      }
+      // Clean Up Last 2 Triangles
+      if (p1.getNumVert() > 1) {
+        newT = Triangle(p1.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
+        tot++;
+        num1 = 1;
+        model->addTriangle(newT);
+      }
+      if (p2.getNumVert() > 1) {
+        newT = Triangle(p2.getVertex(0), p1.getVertex(num1-1), p2.getVertex(num2-1), tot);
+        tot++;
+        num2 = 1;
+        model->addTriangle(newT);
       }
     }
   }
@@ -352,6 +364,7 @@ void stlWriter(Model* first_model, std::string fileName){
     if (current_model->next == NULL) {end=true;}
     current_model = current_model->next;
   }
+  std::cout << total_size << std::endl;
   current_model = first_model;
   end = false;
   if (current_model == NULL) {end=true;}

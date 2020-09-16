@@ -1,27 +1,33 @@
 #include "Shapes.h"
 
-void cubeGen(Model* &cube, double sidelength) {
-  double i=1;
-  double j=1;
-  double k=1;
-  double delta = sidelength/2.0;
+void cubeGen(Model* &cube, double sidelength, double delta) {
+  double x,y,z;
+  uint m = 0;
   double a = cube->getOrigin().getX();
   double b = cube->getOrigin().getY();
   double c = cube->getOrigin().getZ();
+  uint num_slices = (sidelength/delta)+1;
   Vertex* current;
-  for (int m=0; m<8; m++) {
-    current = new Vertex(i*delta + a, j*delta + b, k*delta + c, m, cube->getOrigin());
-    i = -1*i;
-    if (i==1) {j = -1*j;}
-    if (m>=3) {k=-1;}
-    cube->addVertex(current);
+  for (uint i=0; i<num_slices; i++) {
+    for (uint j=0; j<num_slices; j++) {
+      x = i*delta - a;
+      y = j*delta - b;
+      z = c-(sidelength/2.0);
+      current = new Vertex(x, y, z, m, cube->getOrigin());
+      cube->addVertex(current);
+      z = c+(sidelength/2.0);
+      m++;
+      current = new Vertex(x, y, z, m, cube->getOrigin());
+      cube->addVertex(current);
+      m++;
+    }
   }
-  cube->x_min = a-delta;
-  cube->x_max = a+delta;
-  cube->y_min = b-delta;
-  cube->y_max = b+delta;
-  cube->z_min = c-delta;
-  cube->z_max = c+delta;
+  cube->x_min = a-(sidelength/2.0);
+  cube->x_max = a+(sidelength/2.0);
+  cube->y_min = b-(sidelength/2.0);
+  cube->y_max = b+(sidelength/2.0);
+  cube->z_min = c-(sidelength/2.0);
+  cube->z_max = c+(sidelength/2.0);
 }
 
 
@@ -61,31 +67,39 @@ void sphereGen(Model* &sphere, double radius, double delta) {
 }
 
 
-void rectGen(Model* &rect, double xlen, double ylen, double zlen) {
-  double i=1;
-  double j=1;
-  double k=1;
-  double x_side, y_side, z_side;
+void rectGen(Model* &rect, double xlen, double ylen, double zlen, double delta) {
+  double x_side, y_side, z_side, x,y,z;
+  uint num_slices_x, num_slices_y;
+  uint m = 0;
   x_side = xlen/2.0;
   y_side = ylen/2.0;
   z_side = zlen/2.0;
+  num_slices_x = (xlen/delta) + 1;
+  num_slices_y = (ylen/delta) + 1;
   double a = rect->getOrigin().getX();
   double b = rect->getOrigin().getY();
   double c = rect->getOrigin().getZ();
   Vertex* current;
-  for (int m=0; m<8; m++) {
-    current = new Vertex(i*x_side + a, j*y_side + b, k*z_side + c, m, rect->getOrigin());
-    i = -1*i;
-    if (i==1) {j = -1*j;}
-    if (m>=3) {k=-1;}
-    rect->addVertex(current);
+  for (uint i=0; i<num_slices_x; i++) {
+    for (uint j=0; j<num_slices_y; j++) {
+      x = i*delta - x_side + a;
+      y = j*delta - y_side + b;
+      z = c-z_side;
+      current = new Vertex(x, y, z, m, rect->getOrigin());
+      rect->addVertex(current);
+      z = c+z_side;
+      m++;
+      current = new Vertex(x, y, z, m, rect->getOrigin());
+      rect->addVertex(current);
+      m++;
+    }
   }
-  rect->x_min = a-xlen;
-  rect->x_max = a+xlen;
-  rect->y_min = b-ylen;
-  rect->y_max = b+ylen;
-  rect->z_min = c-zlen;
-  rect->z_max = c+zlen;
+  rect->x_min = a-x_side;
+  rect->x_max = a+x_side;
+  rect->y_min = b-y_side;
+  rect->y_max = b+y_side;
+  rect->z_min = c-z_side;
+  rect->z_max = c+z_side;
 }
 
 

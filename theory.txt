@@ -1,0 +1,21 @@
+HOW THIS SHOULD WORK... (THEORETICALLY)
+
+MESH GENERATION FOR BASIC SINGLE SHAPES (TESTED, IMPERFECT)
+- KNOWNS
+  - X and Y coordinates will be evenly spaced
+  - Z coordinates will be based on X and Y values, and mustn't follow any rules
+    on its value relative to others --> Cannot be cut up nicely in z dimension
+- WHAT I DID
+  - Slice models into shapes by their x and y planes separately
+  - Connect the separate planes together based on the vertices angles and
+    distances from the center of the shape
+
+MESH GENERATION FOR COLLECTIONS OF SHAPES (UNTESTED THEORY)
+- KNOWNS
+  - I'M PRETTY MUCH FUCKED...
+  - THIS IS A NIGHTMARE...
+- WHAT I AM DOING
+  - MERGE ALL VALID POINTS INTO ONE "SUPER" MODEL
+  - CREATE MESHES FOR FINAL OBJECT BASED ON PREVIOUS MAXIMA AND MINIMA FOR
+    INDIVIDUAL MODELS
+  - CHANGING HOW I GENERATE CUBES AND RECTANGLES, SIMPLIFYING LATER

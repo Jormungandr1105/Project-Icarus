@@ -28,9 +28,13 @@ public:
   // Distance Finder
   double calcDist(Vertex* b);
 
+  // Print Override
+  friend std::ostream& operator<<(std::ostream& os, const Vertex* Vt);
 };
 
 bool sortX(const Vertex* a, const Vertex* b);
 bool sortY(const Vertex* a, const Vertex* b);
+bool FindXPairs(const Vertex* a, const Vertex* b);
+bool FindYPairs(const Vertex* a, const Vertex* b);
 
 #endif

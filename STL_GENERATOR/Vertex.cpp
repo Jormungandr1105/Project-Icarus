@@ -1,4 +1,5 @@
 #include <cmath>
+#include <ostream>
 #include "Vertex.h"
 
 Vertex::Vertex(double x, double y, double z, int number, Vertex origin) {
@@ -84,6 +85,12 @@ double Vertex::calcDist(Vertex* b) {
   return distance;
 }
 
+std::ostream& operator<<(std::ostream& os, const Vertex* Vt){
+  os << Vt->x_coord << "," << Vt->y_coord << "," << Vt->z_coord <<
+        ":" << Vt->angleTheta << ":" << Vt->angleOmega;
+  return os;
+}
+
 // Non-Member Functions
 // Sort via X Distance
 bool sortX(const Vertex* a, const Vertex* b) {
@@ -117,6 +124,20 @@ bool sortY(const Vertex* a, const Vertex* b) {
     } else if (a->getOmega() == b->getOmega() && aRad < bRad) {
       return true;
     }
+  }
+  return false;
+}
+
+bool FindXPairs(const Vertex* a, const Vertex* b) {
+  if (a->getX() > b->getX()){
+    return true;
+  }
+  return false;
+}
+
+bool FindYPairs(const Vertex* a, const Vertex* b) {
+  if (a->getY() > b->getY()){
+    return true;
   }
   return false;
 }
