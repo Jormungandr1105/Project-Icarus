@@ -13,3 +13,9 @@ In the Future:
 - Generate Wing Shapes
 - Run Aerodynamics and Strengths Equations on Wings
 - Automate Above Equations to Get Desired Wing Geometry and Design as Good as Possible
+
+
+# Usage
+Am planning on updating the cmake files to make it easier to build on its own, but currently, the building process invloves using g++ to turn all of the c++ files in the STL_GENERATOR folder into an executable.
+
+Then, run that file from the command-line followed by the name of the expected stl file, without ".stl", and then the name of the input file from the Input_files folder.
