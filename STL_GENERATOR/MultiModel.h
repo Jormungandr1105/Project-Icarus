@@ -24,6 +24,7 @@ private:
 
 public:
   Model* first,* last;
+  std::vector<Vertex> origins;
 
   // CONSTRUCTORS
   MultiModel(Model* model);

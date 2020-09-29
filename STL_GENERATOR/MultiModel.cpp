@@ -4,12 +4,14 @@ MultiModel::MultiModel(Model* model) {
   uint num_verts;
   first = model;
   last = model;
+  origins.push_back(last->getOrigin());
   num_verts = last->getNumVertices();
   for (int i=0; i<num_verts; i++) {
     vertices.push_back(last->getVertices(i));
   }
   while (last->next != NULL) {
     last = last->next;
+    origins.push_back(last->getOrigin());
     num_verts = last->getNumVertices();
     for (int i=0; i<num_verts; i++) {
       vertices.push_back(last->getVertices(i));
@@ -21,12 +23,14 @@ MultiModel::MultiModel(const MultiModel& that) {
   first = that.first;
   last = that.last;
   vertices = that.vertices;
+  origins = that.origins;
 }
 
 MultiModel& MultiModel::operator=(const MultiModel& that){
   first = that.first;
   last = that.last;
   vertices = that.vertices;
+  origins = that.origins;
   return *this;
 }
 
@@ -43,7 +47,7 @@ void MultiModel::addModel(Model* model) {
 */
 
 void MultiModel::removeUnnecessary() {
-  double epsilon = .0005;
+  double epsilon = .005;
   bool within;
   Model* current_model;
   std::vector<Vertex*> new_vertices;
@@ -64,64 +68,55 @@ void MultiModel::removeUnnecessary() {
 }
 
 void MultiModel::simplifyGeometry() {
-  for(uint i=1; i<px.size(); i++) {
+  std::cout << "SIMPLIFYING GEOMETRY" << std::endl;
+  std::cout << "PX: " << px.size() << "-->";
+  for(uint i=1; i<px.size()-1; i++) {
+    Plane p2 = px[i+1];
     Plane p1 = px[i];
     Plane p0 = px[i-1];
-    if (p0.getNumVert() == p1.getNumVert()) {
+    if (p0.getNumVert()==p1.getNumVert() && p1.getNumVert()==p2.getNumVert()) {
       bool failed = false;
       for (uint j=0; j<p0.getNumVert(); j++) {
-        if (p0.getVertex(j)->getY() != p1.getVertex(j)->getY() ||
-            p0.getVertex(j)->getZ() != p1.getVertex(j)->getZ()) {
+        // Checking if all points in adjacent planes have same y and z coords
+        if ((p0.getVertex(j)->getY() != p1.getVertex(j)->getY() ||
+            p0.getVertex(j)->getZ() != p1.getVertex(j)->getZ()) &&
+            (p1.getVertex(j)->getY() != p2.getVertex(j)->getY() ||
+                p1.getVertex(j)->getZ() != p2.getVertex(j)->getZ())) {
               failed = true;
+              break;
             }
       }
       if (!failed) {
         px.erase(px.begin()+i);
+        i--;
       }
     }
   }
-  for(uint i=1; i<py.size(); i++) {
+  std::cout << px.size() << std::endl;
+  std::cout << "PY: " << py.size() << "-->";
+  for(uint i=1; i<py.size()-1; i++) {
+    Plane p2 = py[i+1];
     Plane p1 = py[i];
     Plane p0 = py[i-1];
-    if (p0.getNumVert() == p1.getNumVert()) {
+    if (p0.getNumVert()==p1.getNumVert() && p1.getNumVert()==p2.getNumVert()) {
       bool failed = false;
+      // Checking if all points in adjacent planes have same x and z coords
       for (uint j=0; j<p0.getNumVert(); j++) {
-        if (p0.getVertex(j)->getX() != p1.getVertex(j)->getX() ||
-            p0.getVertex(j)->getZ() != p1.getVertex(j)->getZ()) {
+        if ((p0.getVertex(j)->getX() != p1.getVertex(j)->getX() ||
+            p0.getVertex(j)->getZ() != p1.getVertex(j)->getZ()) &&
+            (p1.getVertex(j)->getX() != p2.getVertex(j)->getX() ||
+                p1.getVertex(j)->getZ() != p2.getVertex(j)->getZ())) {
               failed = true;
+              break;
             }
       }
       if (!failed) {
         py.erase(py.begin()+i);
+        i--;
       }
     }
   }
-  Vertex* v0, *v1, *v2;
-  for(uint i=0; i<px.size(); i++) {
-    for (uint j=1; j<px[i].getNumVert()-1; j++) {
-      v0 = px[i].getVertex(j-1);
-      v1 = px[i].getVertex(j);
-      v2 = px[i].getVertex(j+1);
-      if (v0->getY() == v1->getY() && v1->getY() == v2->getY()){
-        px[i].remove(j);
-      } else if (v0->getZ() == v1->getZ() && v1->getZ() == v2->getZ()) {
-        px[i].remove(j);
-      }
-    }
-  }
-  for(uint i=0; i<py.size(); i++) {
-    for (uint j=1; j<py[i].getNumVert()-1; j++) {
-      v0 = py[i].getVertex(j-1);
-      v1 = py[i].getVertex(j);
-      v2 = py[i].getVertex(j+1);
-      if (v0->getX() == v1->getX() && v1->getX() == v2->getX()){
-        py[i].remove(j);
-      } else if (v0->getZ() == v1->getZ() && v1->getZ() == v2->getZ()) {
-        py[i].remove(j);
-      }
-      //std::cout << py[i].getNumVert() << std::endl;
-    }
-  }
+  std::cout << py.size() << std::endl;
 }
 
 
@@ -133,6 +128,7 @@ void MultiModel::slicer() {
   Plane cur_plane;
   this->sortByX();
   uint size = vertices.size();
+
   double x = vertices[0]->getX();
   for(uint i=1; i<=size; i++) {
     if (i == size) {
@@ -157,7 +153,9 @@ void MultiModel::slicer() {
       x = vertices[i]->getX();
     }
   }
+
   // Now Slice Y
+
   this->sortByY();
   double y = vertices[0]->getY();
   first = 0;
@@ -185,6 +183,7 @@ void MultiModel::slicer() {
       y = vertices[i]->getY();
     }
   }
+
 }
 
 
@@ -199,7 +198,8 @@ void MultiModel::meshGen() {
   double x_min, x_max, y_min, y_max, z_min, z_max, x, y, z;
   double delta = 1;
   uint num_planes;
-  while(current_model!=NULL) {
+  uint model_no = 0;
+  while(current_model!=NULL && !current_model->isAHole()) {
     // ESTABLISHES BOUNDARIES FOR MESH GEN
     x_min = current_model->x_min;
     x_max = current_model->x_max;
@@ -208,25 +208,38 @@ void MultiModel::meshGen() {
     z_min = current_model->z_min;
     z_max = current_model->z_max;
 
+    // SHIFT ALL THE GEOMETRIES SO IT DOESNT FUCK UP
+    for (uint x=0; x<px.size(); x++) {
+      for (uint i=0; i<px[x].getNumVert(); i++) {
+        px[x].getVertex(i)->setAngle(origins[model_no]);
+      }
+    }
+    for (uint x=0; x<py.size(); x++) {
+      for (uint i=0; i<py[x].getNumVert(); i++) {
+        py[x].getVertex(i)->setAngle(origins[model_no]);
+      }
+    }
+
     // X PLANES ===============================================================
     // FINDS PLANE ON EDGE OF BOUNDARY
     num_planes = px.size();
     int i=num_planes-1;
-    cur_plane = px[i];
+    if (num_planes != 0) {cur_plane = px[i];}
+
     //std::cout << "CHECK 0" << std::endl;
     //std::cout << x_min << std::endl;
     //std::cout << x_max << std::endl;
     //std::cout << cur_plane.getVertex(0)->getX() << std::endl;
-    while(cur_plane.getVertex(0)->getX() > x_max) {
+    while(i>=0 && cur_plane.getVertex(0)->getX() > x_max) {
       i--;
-      std::cout << cur_plane.getVertex(0)->getX() << std::endl;
+      //std::cout << cur_plane.getVertex(0)->getX() << std::endl;
       cur_plane = px[i];
     }
     i--;
     num_planes = px.size();
-    std::cout << num_planes << std::endl;
+    //std::cout << num_planes << std::endl;
     // STARTS MESH MAKING
-    std::cout << "START X MESH" << std::endl;
+    //std::cout << "START X MESH" << std::endl;
     while(i>=0) {
       if (px[i].getNumVert() > 0 && px[i+1].getNumVert()>0) {
         if (px[i+1].getVertex(0)->getX() <= x_max &&
@@ -332,24 +345,27 @@ void MultiModel::meshGen() {
       }
       i--;
     }
+    //std::cout << "END X MESH" << std::endl;
 
     // Y PLANES ===============================================================
     // FINDS PLANE ON EDGE OF BOUNDARY
 
     num_planes = py.size();
     uint j=0;
-    cur_plane = py[j];
+    if (num_planes != 0) {cur_plane = py[j];}
+
     //std::cout << y_min << std::endl;
     //std::cout << y_max << std::endl;
     //std::cout << cur_plane.getVertex(0)->getY() << std::endl;
-    while(cur_plane.getVertex(0)->getY() <= y_min) {
+    //std::cout << num_planes << std::endl;
+    while(j < num_planes && cur_plane.getVertex(0)->getY() <= y_min) {
       j++;
       cur_plane = py[j];
     }
     j++;
-    std::cout << num_planes << std::endl;
+    //std::cout << num_planes << std::endl;
     // STARTS MESH MAKING
-    std::cout << "START Y MESH" << std::endl;
+    //std::cout << "START Y MESH" << std::endl;
     //std::cout << j-1 << std::endl;
     while(j<num_planes) {
       if (py[j].getNumVert() > 0 && py[j-1].getNumVert()>0) {
@@ -392,8 +408,8 @@ void MultiModel::meshGen() {
             //std::cout << "PASSED REMOVES" << std::endl;
             //std::cout << vec1.size() << std::endl;
             //for (int i=0; i<vec1.size(); i++){std::cout << vec1[i] << std::endl;}
-            std::cout << "VEC2\n";
-            for (int i=0; i<vec2.size(); i++){std::cout << vec2[i] << std::endl;}
+            //std::cout << "VEC2\n";
+            //for (int i=0; i<vec2.size(); i++){std::cout << vec2[i] << std::endl;}
             if (vec1.size()>0 && vec2.size()>0) {
               //std::cout << "PAST VERTEX" <<std::endl;
               if (vec1.size() > 1) {nextLow = vec1[1];}
@@ -464,8 +480,9 @@ void MultiModel::meshGen() {
       }
       j++;
     }
-    std::cout << "CLEARED Y" << std::endl;
+    //std::cout << "CLEARED Y" << std::endl;
     current_model = current_model->next;
+    model_no++;
     //std::cout << mesh.size() << std::endl;
     //std::cout << "END" << std::endl;
   }

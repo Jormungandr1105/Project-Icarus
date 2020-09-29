@@ -25,6 +25,8 @@ public:
   double getOmega() const;
   int getNumber() const;
 
+  void setAngle(Vertex origin);
+
   // Distance Finder
   double calcDist(Vertex* b);
 

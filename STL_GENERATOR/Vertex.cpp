@@ -7,6 +7,19 @@ Vertex::Vertex(double x, double y, double z, int number, Vertex origin) {
   y_coord = y;
   z_coord = z;
   v_num = number;
+  setAngle(origin);
+}
+
+// ACCESSORS
+double Vertex::getX() const {return x_coord;}
+double Vertex::getY() const {return y_coord;}
+double Vertex::getZ() const {return z_coord;}
+double Vertex::getTheta() const {return angleTheta;}
+double Vertex::getOmega() const {return angleOmega;}
+int Vertex::getNumber() const {return v_num;}
+
+
+void Vertex::setAngle(Vertex origin) {
   double rad = sqrt(pow(y_coord-origin.getY(),2) + pow(z_coord-origin.getZ(), 2));
   double cos, sin;
   cos = acos((y_coord-origin.getY())/rad);
@@ -65,15 +78,6 @@ Vertex::Vertex(double x, double y, double z, int number, Vertex origin) {
     }
   }
 }
-
-// ACCESSORS
-double Vertex::getX() const {return x_coord;}
-double Vertex::getY() const {return y_coord;}
-double Vertex::getZ() const {return z_coord;}
-double Vertex::getTheta() const {return angleTheta;}
-double Vertex::getOmega() const {return angleOmega;}
-int Vertex::getNumber() const {return v_num;}
-
 
 
 double Vertex::calcDist(Vertex* b) {
